@@ -5,7 +5,7 @@ AI-powered git commit message generator using LLM APIs.
 ## Features
 
 - Analyzes staged git changes (`git diff --staged`)
-- Generates commit messages in [Conventional Commits](https://www.conventionalcommits.org/) format
+- Prompts LLM to generate [Conventional Commits](https://www.conventionalcommits.org/) format messages
 - Supports multiple LLM providers (Claude, OpenAI)
 
 ## Installation
