@@ -20,10 +20,10 @@
 //! commit-assist --provider openai
 //!
 //! # Specify a model
-//! commit-assist --model claude-3-5-sonnet-20241022
+//! commit-assist --model claude-haiku-4-5-20251001
 //! ```
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 use std::process::Command;
@@ -32,7 +32,9 @@ use std::process::Command;
 #[derive(Parser, Debug)]
 #[command(name = "commit-assist")]
 #[command(author, version, about = "AI-powered git commit message generator")]
-#[command(long_about = "Analyzes staged git changes and generates commit messages in Conventional Commits format using AI.")]
+#[command(
+    long_about = "Analyzes staged git changes and generates commit messages in Conventional Commits format using AI."
+)]
 pub struct Cli {
     /// LLM provider to use for message generation.
     ///
@@ -43,7 +45,7 @@ pub struct Cli {
     /// Specific model to use.
     ///
     /// If not specified, uses the default model for each provider:
-    /// - Claude: claude-sonnet-4-20250514
+    /// - Claude: claude-haiku-4-5-20251001
     /// - OpenAI: gpt-4o
     #[arg(short, long)]
     pub model: Option<String>,
@@ -52,7 +54,7 @@ pub struct Cli {
 /// Request body for Claude API.
 #[derive(Serialize, Debug)]
 pub struct ClaudeRequest {
-    /// Model identifier (e.g., "claude-sonnet-4-20250514")
+    /// Model identifier (e.g., "claude-haiku-4-5-20251001")
     pub model: String,
     /// Maximum tokens in the response
     pub max_tokens: u32,
@@ -202,7 +204,7 @@ Diff:
 /// # Arguments
 ///
 /// * `diff` - The git diff to analyze
-/// * `model` - The Claude model to use (e.g., "claude-sonnet-4-20250514")
+/// * `model` - The Claude model to use (e.g., "claude-haiku-4-5-20251001")
 ///
 /// # Errors
 ///
@@ -216,14 +218,14 @@ Diff:
 /// ```no_run
 /// # async fn example() -> anyhow::Result<()> {
 /// let diff = "+fn new_feature() {}";
-/// let message = commit_assist::generate_with_claude(diff, "claude-sonnet-4-20250514").await?;
+/// let message = commit_assist::generate_with_claude(diff, "claude-haiku-4-5-20251001").await?;
 /// println!("Generated message: {}", message);
 /// # Ok(())
 /// # }
 /// ```
 pub async fn generate_with_claude(diff: &str, model: &str) -> Result<String> {
-    let api_key =
-        std::env::var("ANTHROPIC_API_KEY").context("ANTHROPIC_API_KEY environment variable not set")?;
+    let api_key = std::env::var("ANTHROPIC_API_KEY")
+        .context("ANTHROPIC_API_KEY environment variable not set")?;
 
     let client = reqwest::Client::new();
     let request = ClaudeRequest {
@@ -350,7 +352,7 @@ pub async fn run(cli: Cli) -> Result<()> {
         "claude" => {
             let model = cli
                 .model
-                .unwrap_or_else(|| "claude-sonnet-4-20250514".to_string());
+                .unwrap_or_else(|| "claude-haiku-4-5-20251001".to_string());
             generate_with_claude(&diff, &model).await?
         }
         "openai" => {
@@ -460,7 +462,7 @@ mod tests {
     #[test]
     fn test_claude_request_serialization() {
         let request = ClaudeRequest {
-            model: "claude-sonnet-4-20250514".to_string(),
+            model: "claude-haiku-4-5-20251001".to_string(),
             max_tokens: 1024,
             messages: vec![Message {
                 role: "user".to_string(),
@@ -470,7 +472,7 @@ mod tests {
 
         let json = serde_json::to_string(&request).unwrap();
 
-        assert!(json.contains("claude-sonnet-4-20250514"));
+        assert!(json.contains("claude-haiku-4-5-20251001"));
         assert!(json.contains("1024"));
         assert!(json.contains("user"));
     }
@@ -509,7 +511,8 @@ mod tests {
 
     #[test]
     fn test_openai_response_deserialization() {
-        let json = r#"{"choices": [{"message": {"role": "assistant", "content": "fix: resolve bug"}}]}"#;
+        let json =
+            r#"{"choices": [{"message": {"role": "assistant", "content": "fix: resolve bug"}}]}"#;
         let response: OpenAIResponse = serde_json::from_str(json).unwrap();
 
         assert_eq!(response.choices.len(), 1);

@@ -41,7 +41,7 @@ commit-assist
 commit-assist --provider openai
 
 # Specify a model
-commit-assist --model claude-3-5-sonnet-20241022
+commit-assist --model claude-haiku-4-5-20251001 
 
 # Short flags
 commit-assist -p openai -m gpt-4-turbo
