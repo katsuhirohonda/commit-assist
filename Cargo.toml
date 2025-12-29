@@ -1,6 +1,6 @@
 [package]
 name = "commit-assist"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 authors = ["Katsuhiro Honda"]
 description = "AI-powered git commit message generator"
