@@ -41,10 +41,13 @@ commit-assist
 commit-assist --provider openai
 
 # Specify a model
-commit-assist --model claude-haiku-4-5-20251001 
+commit-assist --model claude-haiku-4-5-20251001
+
+# Auto-commit with generated message
+commit-assist --commit
 
 # Short flags
-commit-assist -p openai -m gpt-4-turbo
+commit-assist -p openai -m gpt-4-turbo -c
 ```
 
 ### Environment Variables

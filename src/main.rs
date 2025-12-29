@@ -49,6 +49,13 @@ pub struct Cli {
     /// - OpenAI: gpt-4o
     #[arg(short, long)]
     pub model: Option<String>,
+
+    /// Automatically commit with the generated message.
+    ///
+    /// When set, runs `git commit` with the generated message
+    /// instead of just printing it.
+    #[arg(short, long, default_value = "false")]
+    pub commit: bool,
 }
 
 /// Request body for Claude API.
@@ -145,6 +152,32 @@ pub fn get_staged_diff() -> Result<String> {
     }
 
     Ok(diff)
+}
+
+/// Executes git commit with the given message.
+///
+/// # Arguments
+///
+/// * `message` - The commit message to use
+///
+/// # Errors
+///
+/// Returns an error if the git commit command fails.
+pub fn execute_commit(message: &str) -> Result<()> {
+    let output = Command::new("git")
+        .args(["commit", "-m", message])
+        .output()
+        .context("Failed to execute git commit")?;
+
+    if !output.status.success() {
+        bail!(
+            "git commit failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    println!("{}", String::from_utf8_lossy(&output.stdout));
+    Ok(())
 }
 
 /// Builds the prompt for the LLM to generate a commit message.
@@ -365,7 +398,11 @@ pub async fn run(cli: Cli) -> Result<()> {
         ),
     };
 
-    println!("{}", message);
+    if cli.commit {
+        execute_commit(&message)?;
+    } else {
+        println!("{}", message);
+    }
 
     Ok(())
 }
@@ -435,6 +472,27 @@ mod tests {
 
         assert_eq!(cli.provider, "openai");
         assert_eq!(cli.model, Some("gpt-4".to_string()));
+    }
+
+    #[test]
+    fn test_cli_commit_flag_default() {
+        let cli = Cli::parse_from(["commit-assist"]);
+
+        assert!(!cli.commit);
+    }
+
+    #[test]
+    fn test_cli_commit_flag_enabled() {
+        let cli = Cli::parse_from(["commit-assist", "--commit"]);
+
+        assert!(cli.commit);
+    }
+
+    #[test]
+    fn test_cli_commit_flag_short() {
+        let cli = Cli::parse_from(["commit-assist", "-c"]);
+
+        assert!(cli.commit);
     }
 
     #[test]
