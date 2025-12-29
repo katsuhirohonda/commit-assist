@@ -182,6 +182,10 @@ Rules:
 - Use imperative mood ("add" not "added")
 - Be concise but descriptive
 - Only output the commit message, nothing else
+- Lines starting with '+' are ADDITIONS (added content)
+- Lines starting with '-' are DELETIONS (removed content)
+- Describe what was ACTUALLY changed, not what SHOULD be changed
+- Do NOT assume intent or suggest corrections
 
 Diff:
 ```
